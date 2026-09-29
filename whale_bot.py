@@ -12,19 +12,18 @@ from telegram.ext import Application
 # ==========================================
 # 1. AYARLAR
 # ==========================================
-TELEGRAM_TOKEN = "8779897859:AAEhhq2C93tCD030HvzPn7gLZzV0unacbwc"
-CHAT_ID = "1139482362"
+TELEGRAM_TOKEN = "8779897859:AAEhhq2C93tCD030HvzPn7gLZzV0unacbwc"  # BotFather token'ınızı kontrol edin
+CHAT_ID = "1139482362"  # Kendi Chat ID'nizi yazın
 
-# MTLUSDT listeye eklendi
 SYMBOLS = ["mtlusdt", "btcusdt", "ethusdt", "solusdt"]
 
 TP_PERCENT = 1.5   # %1.5 Kar Al
 SL_PERCENT = 0.8   # %0.8 Stop Loss
 
-# Altcoinler için balina eşiğini $50.000 yaptık (MTL'de hacim daha düşüktür)
-MIN_VOL_THRESHOLD_USD = 5000     # $50.000 yerine $5.000 yapın (Test için)
-DOMINANCE_RATIO = 0.51           # %65 yerine %51 yapın (Hafif üstünlük yetsin)
-SIGNAL_COOLDOWN_SEC = 30         # 5 dakika yerine 30 saniye yapın
+# TEST İÇİN DÜŞÜK EŞİKLER (Sinyali hemen görmek için)
+MIN_VOL_THRESHOLD_USD = 5000   # $5.000 hacim
+DOMINANCE_RATIO = 0.51          # %51 dominans
+SIGNAL_COOLDOWN_SEC = 30        # 30 saniye cooldown
 
 trade_buffer = defaultdict(list)
 last_signal_time = defaultdict(float)
@@ -99,25 +98,27 @@ def process_trades(symbol):
             )
 
 def on_message(ws, message):
-    data = json.loads(message)
-    if 'data' in data:
-        data = data['data']
-        
-    symbol = data['s'].lower()
-    price = float(data['p'])
-    quantity = float(data['q'])
-    usd_val = price * quantity
-    is_sell = data['m']
+    try:
+        data = json.loads(message)
+        if 'data' in data:
+            data = data['data']
+            
+        symbol = data['s'].lower()
+        price = float(data['p'])
+        quantity = float(data['q'])
+        usd_val = price * quantity
+        is_sell = data['m']
 
-    # MTL gibi coinlerde tekil $10.000 üzeri işlemleri hafızaya alır
-    if usd_val >= 1000:
-        trade_buffer[symbol].append({
-            'time': time.time(),
-            'usd': usd_val,
-            'is_sell': is_sell,
-            'price': price
-        })
-        process_trades(symbol)
+        if usd_val >= 1000:  # $1.000 üzeri işlemleri takip et
+            trade_buffer[symbol].append({
+                'time': time.time(),
+                'usd': usd_val,
+                'is_sell': is_sell,
+                'price': price
+            })
+            process_trades(symbol)
+    except Exception as e:
+        logging.error(f"Message process error: {e}")
 
 def start_multi_websocket():
     streams = "/".join([f"{s}@aggTrade" for s in SYMBOLS])
