@@ -1,5 +1,5 @@
-TELEGRAM_TOKEN = "BotFather'dan aldığın uzun token"
-CHAT_ID = "userinfobot'tan aldığın sayısal Id"
+TELEGRAM_TOKEN = "8779897859:AAHSS-OaMmTfjo0sR8dwqRUQ6m_r_NgihpY"
+CHAT_ID = "1139482362"
 import threading
 import time
 from collections import defaultdict
