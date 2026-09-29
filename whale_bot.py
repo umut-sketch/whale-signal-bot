@@ -157,6 +157,18 @@ async def send_exit_signal(symbol: str, signal_type: str, price: float, reason: 
 # ==========================================
 # 4. BAŞLATICI
 # ==========================================
+# ==========================================
+# 4. BAŞLATICI
+# ==========================================
+async def send_startup_message():
+    try:
+        await telegram_app.bot.send_message(
+            chat_id=CHAT_ID, 
+            text="🚀 Balina Botu Başarıyla Bağlandı ve Piyasa İzleniyor!"
+        )
+    except Exception as e:
+        logging.error(f"Başlangıç mesajı hatası: {e}")
+
 def main():
     global telegram_app
     telegram_app = Application.builder().token(TELEGRAM_TOKEN).build()
@@ -165,6 +177,10 @@ def main():
     ws_thread.start()
 
     print("Balina Sinyal Botu Aktif... İzlenenler:", SYMBOLS)
+    
+    # Render her açıldığında Telegram'a test mesajı atar
+    telegram_app.post_init = lambda app: app.create_task(send_startup_message())
+    
     telegram_app.run_polling()
 
 if __name__ == "__main__":
