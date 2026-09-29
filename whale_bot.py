@@ -1,4 +1,4 @@
-TELEGRAM_TOKEN = "8779897859:AAFWRwzJE0xxnJFIuyK4SGncm4JG1I4Hzu0"
+TELEGRAM_TOKEN = "8779897859:AAEhhq2C93tCD030HvzPn7gLZzV0unacbwc"
 CHAT_ID = "1139482362"
 import json
 import logging
@@ -12,7 +12,7 @@ from telegram.ext import Application
 # ==========================================
 # 1. AYARLAR
 # ==========================================
-TELEGRAM_TOKEN = "8779897859:AAFWRwzJE0xxnJFIuyK4SGncm4JG1I4Hzu0"
+TELEGRAM_TOKEN = "8779897859:AAEhhq2C93tCD030HvzPn7gLZzV0unacbwc"
 CHAT_ID = "1139482362"
 
 # MTLUSDT listeye eklendi
