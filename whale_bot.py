@@ -169,18 +169,31 @@ async def send_startup_message():
     except Exception as e:
         logging.error(f"Başlangıç mesajı hatası: {e}")
 
+# ==========================================
+# 4. BAŞLATICI
+# ==========================================
+async def post_init_callback(app: Application):
+    try:
+        await app.bot.send_message(
+            chat_id=CHAT_ID, 
+            text="🚀 Balina Botu Başarıyla Bağlandı ve Piyasa İzleniyor!"
+        )
+    except Exception as e:
+        logging.error(f"Başlangıç mesajı hatası: {e}")
+
 def main():
     global telegram_app
-    telegram_app = Application.builder().token(TELEGRAM_TOKEN).build()
+    telegram_app = (
+        Application.builder()
+        .token(TELEGRAM_TOKEN)
+        .post_init(post_init_callback)  # Async callback doğrudan bağlandı
+        .build()
+    )
 
     ws_thread = threading.Thread(target=start_multi_websocket, daemon=True)
     ws_thread.start()
 
     print("Balina Sinyal Botu Aktif... İzlenenler:", SYMBOLS)
-    
-    # Render her açıldığında Telegram'a test mesajı atar
-    telegram_app.post_init = lambda app: app.create_task(send_startup_message())
-    
     telegram_app.run_polling()
 
 if __name__ == "__main__":
