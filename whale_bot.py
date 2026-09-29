@@ -12,15 +12,17 @@ from telegram.ext import Application
 # ==========================================
 # 1. AYARLAR
 # ==========================================
-TELEGRAM_TOKEN = "BURAYA_BOT_TOKEN_YAZIN"
-CHAT_ID = "BURAYA_CHAT_ID_YAZIN"
+TELEGRAM_TOKEN = "8779897859:AAHSS-OaMmTfjo0sR8dwqRUQ6m_r_NgihpY"
+CHAT_ID = "1139482362"
 
-SYMBOLS = ["btcusdt", "ethusdt", "solusdt"]
+# MTLUSDT listeye eklendi
+SYMBOLS = ["mtlusdt", "btcusdt", "ethusdt", "solusdt"]
 
 TP_PERCENT = 1.5   # %1.5 Kar Al
 SL_PERCENT = 0.8   # %0.8 Stop Loss
 
-MIN_VOL_THRESHOLD_USD = 200000  # $200.000 üzeri hacim
+# Altcoinler için balina eşiğini $50.000 yaptık (MTL'de hacim daha düşüktür)
+MIN_VOL_THRESHOLD_USD = 50000   # $50.000 üzeri hacim
 DOMINANCE_RATIO = 0.65          # %65 dominans
 SIGNAL_COOLDOWN_SEC = 300       # 5 dakika tekrar sinyal koruması
 
@@ -47,7 +49,7 @@ def process_trades(symbol):
 
     last_price = trade_buffer[symbol][-1]['price']
     
-    # Ergün Kapatma Kontrolü
+    # Erken Kapatma Kontrolü
     if symbol in active_positions:
         current_side = active_positions[symbol]
         
@@ -98,13 +100,17 @@ def process_trades(symbol):
 
 def on_message(ws, message):
     data = json.loads(message)
+    if 'data' in data:
+        data = data['data']
+        
     symbol = data['s'].lower()
     price = float(data['p'])
     quantity = float(data['q'])
     usd_val = price * quantity
     is_sell = data['m']
 
-    if usd_val >= 20000:
+    # MTL gibi coinlerde tekil $10.000 üzeri işlemleri hafızaya alır
+    if usd_val >= 10000:
         trade_buffer[symbol].append({
             'time': time.time(),
             'usd': usd_val,
@@ -115,7 +121,7 @@ def on_message(ws, message):
 
 def start_multi_websocket():
     streams = "/".join([f"{s}@aggTrade" for s in SYMBOLS])
-    socket_url = f"wss://stream.binance.com:9443/ws/{streams}"
+    socket_url = f"wss://fstream.binance.com/stream?streams={streams}"
     ws = websocket.WebSocketApp(socket_url, on_message=on_message)
     ws.run_forever()
 
@@ -126,9 +132,9 @@ async def send_entry_signal(symbol: str, signal_type: str, entry: float, tp: flo
     text = (
         f"🚨 **YENİ İŞLEM SİNYALİ: {symbol}**\n\n"
         f"**Yön:** {signal_type}\n"
-        f"**Giriş Fiyatı:** ${entry:,.2f}\n\n"
-        f"🎯 **Kar Al (TP):** ${tp:,.2f} (+%{TP_PERCENT})\n"
-        f"🛑 **Stop Loss (SL):** ${sl:,.2f} (-%{SL_PERCENT})\n\n"
+        f"**Giriş Fiyatı:** ${entry:,.4f}\n\n"
+        f"🎯 **Kar Al (TP):** ${tp:,.4f} (+%{TP_PERCENT})\n"
+        f"🛑 **Stop Loss (SL):** ${sl:,.4f} (-%{SL_PERCENT})\n\n"
         f"**Gerekçe:** {reason}"
     )
     binance_link = f"https://www.binance.com/en/futures/{symbol}"
@@ -139,7 +145,7 @@ async def send_exit_signal(symbol: str, signal_type: str, price: float, reason: 
     text = (
         f"⚠️ **POZİSYON KAPATMA UYARISI: {symbol}**\n\n"
         f"**Aksiyon:** {signal_type}\n"
-        f"**Anlık Fiyat:** ${price:,.2f}\n\n"
+        f"**Anlık Fiyat:** ${price:,.4f}\n\n"
         f"**Neden:** {reason}\n"
         f"👉 *Lütfen Binance üzerinden pozisyonunuzu kontrol edin veya kapatın.*"
     )
@@ -157,7 +163,7 @@ def main():
     ws_thread = threading.Thread(target=start_multi_websocket, daemon=True)
     ws_thread.start()
 
-    print("Balina Sinyal Botu Aktif...")
+    print("Balina Sinyal Botu Aktif... İzlenenler:", SYMBOLS)
     telegram_app.run_polling()
 
 if __name__ == "__main__":
