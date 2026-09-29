@@ -22,9 +22,9 @@ TP_PERCENT = 1.5   # %1.5 Kar Al
 SL_PERCENT = 0.8   # %0.8 Stop Loss
 
 # Altcoinler için balina eşiğini $50.000 yaptık (MTL'de hacim daha düşüktür)
-MIN_VOL_THRESHOLD_USD = 50000   # $50.000 üzeri hacim
-DOMINANCE_RATIO = 0.65          # %65 dominans
-SIGNAL_COOLDOWN_SEC = 300       # 5 dakika tekrar sinyal koruması
+MIN_VOL_THRESHOLD_USD = 5000     # $50.000 yerine $5.000 yapın (Test için)
+DOMINANCE_RATIO = 0.51           # %65 yerine %51 yapın (Hafif üstünlük yetsin)
+SIGNAL_COOLDOWN_SEC = 30         # 5 dakika yerine 30 saniye yapın
 
 trade_buffer = defaultdict(list)
 last_signal_time = defaultdict(float)
@@ -110,7 +110,7 @@ def on_message(ws, message):
     is_sell = data['m']
 
     # MTL gibi coinlerde tekil $10.000 üzeri işlemleri hafızaya alır
-    if usd_val >= 10000:
+    if usd_val >= 1000:
         trade_buffer[symbol].append({
             'time': time.time(),
             'usd': usd_val,
