@@ -1,4 +1,4 @@
-TELEGRAM_TOKEN = "8779897859:AAEhhq2C93tCD030HvzPn7gLZzV0unacbwc"
+TELEGRAM_TOKEN = "8779897859:AAF6uMxCCbuWHG5Zu3gVK_hTmpZNg08663A"
 CHAT_ID = "1139482362"
 import json
 import logging
@@ -12,7 +12,7 @@ from telegram.ext import Application
 # ==========================================
 # 1. AYARLAR
 # ==========================================
-TELEGRAM_TOKEN = "8779897859:AAEhhq2C93tCD030HvzPn7gLZzV0unacbwc"  # BotFather token'ınızı kontrol edin
+TELEGRAM_TOKEN = "8779897859:AAF6uMxCCbuWHG5Zu3gVK_hTmpZNg08663A"  # BotFather token'ınızı kontrol edin
 CHAT_ID = "1139482362"  # Kendi Chat ID'nizi yazın
 
 SYMBOLS = ["mtlusdt", "btcusdt", "ethusdt", "solusdt"]
